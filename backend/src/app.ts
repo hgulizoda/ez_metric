@@ -4,6 +4,7 @@ import express from 'express';
 import { errorHandler } from './middleware/errorHandler';
 import authRouter from './routes/auth';
 import healthRouter from './routes/health';
+import workersRouter from './routes/workers';
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(express.json());
 
 app.use('/api', healthRouter);
 app.use('/api', authRouter);
+app.use('/api', workersRouter);
 
 app.use(errorHandler);
 
