@@ -1,0 +1,182 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  admin
+  manager
+}
+
+enum SalaryType {
+  hourly
+  percentage
+  flat
+}
+
+enum ShiftStatus {
+  active
+  completed
+  missed
+}
+
+enum WorkerShiftStatus {
+  scheduled
+  completed
+  missed
+  late
+}
+
+enum ChargeType {
+  loan
+  prepayment
+  distribution
+  time_misuse
+}
+
+enum BonusType {
+  formula
+  manual
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  username      String   @unique
+  password_hash String
+  role          UserRole
+  created_at    DateTime @default(now())
+
+  @@map("users")
+}
+
+model Worker {
+  id          Int      @id @default(autoincrement())
+  base_id     String   @unique
+  name        String
+  picture_url String?
+  resume_url  String?
+  salary_type SalaryType
+  position    String
+  language    String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  worker_shifts  WorkerShift[]
+  clock_records  ClockRecord[]
+  salary_rules   SalaryRule[]
+  charges        Charge[]
+  bonuses        Bonus[]
+
+  @@map("workers")
+}
+
+model Shift {
+  id         Int         @id @default(autoincrement())
+  name       String
+  start_time DateTime
+  end_time   DateTime
+  status     ShiftStatus @default(active)
+  created_at DateTime    @default(now())
+
+  worker_shifts WorkerShift[]
+  clock_records ClockRecord[]
+
+  @@map("shifts")
+}
+
+model WorkerShift {
+  id        Int               @id @default(autoincrement())
+  worker_id Int
+  shift_id  Int
+  date      DateTime          @db.Date
+  status    WorkerShiftStatus @default(scheduled)
+
+  worker Worker @relation(fields: [worker_id], references: [id], onDelete: Cascade)
+  shift  Shift  @relation(fields: [shift_id], references: [id], onDelete: Cascade)
+
+  @@map("worker_shifts")
+}
+
+model ClockRecord {
+  id                   Int      @id @default(autoincrement())
+  worker_id            Int
+  shift_id             Int
+  clock_in             DateTime
+  clock_out            DateTime?
+  is_manual_edit       Boolean  @default(false)
+  edit_note            String?
+  grace_period_applied Boolean  @default(false)
+  created_at           DateTime @default(now())
+
+  worker Worker @relation(fields: [worker_id], references: [id], onDelete: Cascade)
+  shift  Shift  @relation(fields: [shift_id], references: [id], onDelete: Cascade)
+
+  @@map("clock_records")
+}
+
+model GracePeriodRule {
+  id              Int      @id @default(autoincrement())
+  name            String
+  minutes_allowed Int
+  created_at      DateTime @default(now())
+
+  @@map("grace_period_rules")
+}
+
+model SalaryRule {
+  id                       Int        @id @default(autoincrement())
+  worker_id                Int
+  type                     SalaryType
+  rate                     Decimal    @db.Decimal(10, 2)
+  overtime_multiplier      Decimal    @default(1.5) @db.Decimal(4, 2)
+  overtime_threshold_hours Int        @default(40)
+  created_at               DateTime   @default(now())
+
+  worker Worker @relation(fields: [worker_id], references: [id], onDelete: Cascade)
+
+  @@map("salary_rules")
+}
+
+model Charge {
+  id                       Int        @id @default(autoincrement())
+  worker_id                Int
+  type                     ChargeType
+  amount                   Decimal    @db.Decimal(10, 2)
+  remaining                Decimal    @db.Decimal(10, 2)
+  distributed_over_periods Int?
+  description              String
+  created_at               DateTime   @default(now())
+  updated_at               DateTime   @updatedAt
+
+  worker Worker @relation(fields: [worker_id], references: [id], onDelete: Cascade)
+
+  @@map("charges")
+}
+
+model BonusRule {
+  id                       Int      @id @default(autoincrement())
+  position                 String
+  formula                  String
+  min_efficiency_threshold Decimal  @db.Decimal(5, 2)
+  created_at               DateTime @default(now())
+
+  @@map("bonus_rules")
+}
+
+model Bonus {
+  id         Int       @id @default(autoincrement())
+  worker_id  Int
+  amount     Decimal   @db.Decimal(10, 2)
+  type       BonusType
+  period     DateTime  @db.Date
+  note       String?
+  created_at DateTime  @default(now())
+
+  worker Worker @relation(fields: [worker_id], references: [id], onDelete: Cascade)
+
+  @@map("bonuses")
+}
