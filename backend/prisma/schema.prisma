@@ -43,6 +43,45 @@ enum BonusType {
   manual
 }
 
+model Department {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("departments")
+}
+
+model Job {
+  id         Int      @id @default(autoincrement())
+  title      String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("jobs")
+}
+
+model ShiftType {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("shift_types")
+}
+
+model Device {
+  id          Int      @id @default(autoincrement())
+  name        String
+  serial_number String? @unique
+  location    String?
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@map("devices")
+}
+
 model User {
   id            Int      @id @default(autoincrement())
   username      String   @unique
@@ -54,22 +93,22 @@ model User {
 }
 
 model Worker {
-  id          Int      @id @default(autoincrement())
-  base_id     String   @unique
+  id          Int        @id @default(autoincrement())
+  base_id     String     @unique
   name        String
-  picture_url String?
-  resume_url  String?
   salary_type SalaryType
   position    String
   language    String
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  picture_url String?
+  resume_url  String?
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
 
-  worker_shifts  WorkerShift[]
-  clock_records  ClockRecord[]
-  salary_rules   SalaryRule[]
-  charges        Charge[]
-  bonuses        Bonus[]
+  worker_shifts WorkerShift[]
+  clock_records ClockRecord[]
+  salary_rules  SalaryRule[]
+  charges       Charge[]
+  bonuses       Bonus[]
 
   @@map("workers")
 }
