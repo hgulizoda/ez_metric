@@ -13,6 +13,10 @@ import efficiencyRouter from './routes/efficiency';
 import reportsRouter from './routes/reports';
 import dashboardRouter from './routes/dashboard';
 import managersRouter from './routes/managers';
+import departmentsRouter from './routes/departments';
+import jobsRouter from './routes/jobs';
+import shiftTypesRouter from './routes/shiftTypes';
+import devicesRouter from './routes/devices';
 
 dotenv.config();
 
@@ -38,6 +42,10 @@ app.use('/api', efficiencyRouter);
 app.use('/api', reportsRouter);
 app.use('/api', dashboardRouter);
 app.use('/api', managersRouter);
+app.use('/api', departmentsRouter);
+app.use('/api', jobsRouter);
+app.use('/api', shiftTypesRouter);
+app.use('/api', devicesRouter);
 
 app.use(errorHandler);
 

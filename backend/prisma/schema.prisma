@@ -43,6 +43,13 @@ enum BonusType {
   manual
 }
 
+enum ClockStatus {
+  pending
+  approved
+  rejected
+  flagged
+}
+
 model Department {
   id         Int      @id @default(autoincrement())
   name       String   @unique
@@ -67,17 +74,21 @@ model ShiftType {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
+  clock_records ClockRecord[]
+
   @@map("shift_types")
 }
 
 model Device {
-  id          Int      @id @default(autoincrement())
-  name        String
-  serial_number String? @unique
-  location    String?
-  is_active   Boolean  @default(true)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  id            Int           @id @default(autoincrement())
+  name          String
+  serial_number String?       @unique
+  location      String?
+  is_active     Boolean       @default(true)
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+
+  clock_records ClockRecord[]
 
   @@map("devices")
 }
@@ -88,6 +99,8 @@ model User {
   password_hash String
   role          UserRole
   created_at    DateTime @default(now())
+
+  status_changes ClockRecord[]
 
   @@map("users")
 }
@@ -141,18 +154,27 @@ model WorkerShift {
 }
 
 model ClockRecord {
-  id                   Int      @id @default(autoincrement())
+  id                   Int         @id @default(autoincrement())
   worker_id            Int
   shift_id             Int
+  device_id            Int?
+  shift_type_id        Int?
   clock_in             DateTime
   clock_out            DateTime?
-  is_manual_edit       Boolean  @default(false)
+  status               ClockStatus @default(pending)
+  status_changed_by    Int?
+  status_changed_at    DateTime?
+  status_note          String?
+  is_manual_edit       Boolean     @default(false)
   edit_note            String?
-  grace_period_applied Boolean  @default(false)
-  created_at           DateTime @default(now())
+  grace_period_applied Boolean     @default(false)
+  created_at           DateTime    @default(now())
 
-  worker Worker @relation(fields: [worker_id], references: [id], onDelete: Cascade)
-  shift  Shift  @relation(fields: [shift_id], references: [id], onDelete: Cascade)
+  worker         Worker     @relation(fields: [worker_id], references: [id], onDelete: Cascade)
+  shift          Shift      @relation(fields: [shift_id], references: [id], onDelete: Cascade)
+  device         Device?    @relation(fields: [device_id], references: [id], onDelete: SetNull)
+  shift_type     ShiftType? @relation(fields: [shift_type_id], references: [id], onDelete: SetNull)
+  status_changed User?      @relation(fields: [status_changed_by], references: [id], onDelete: SetNull)
 
   @@map("clock_records")
 }

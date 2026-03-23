@@ -5,6 +5,8 @@ import {
   clockIn,
   clockOut,
   listRecords,
+  getRecord,
+  changeStatus,
   editRecord,
 } from '../controllers/clock.controller';
 
@@ -12,9 +14,16 @@ const router = Router();
 
 router.use(authenticate);
 
+// Clock in/out — admin + manager
 router.post('/clock/in', authorize('admin', 'manager'), clockIn);
 router.post('/clock/out', authorize('admin', 'manager'), clockOut);
+
+// List and get records — admin + manager
 router.get('/clock/records', authorize('admin', 'manager'), listRecords);
+router.get('/clock/records/:id', authorize('admin', 'manager'), getRecord);
+
+// Status change and manual edit — admin only
+router.patch('/clock/records/:id/status', authorize('admin'), changeStatus);
 router.put('/clock/records/:id', authorize('admin'), editRecord);
 
 export default router;
