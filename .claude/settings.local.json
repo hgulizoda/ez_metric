@@ -17,7 +17,8 @@
       "Bash(taskkill //IM node.exe //F)",
       "Bash(rm -rf \"C:/Users/Hasanova/utility/global move/ez-metric/backend/node_modules/.prisma\")",
       "Bash(grep -r \"late\\\\|deduction\\\\|grace\" '/c/Users/Hasanova/utility/global move/ez-metric/backend/src' --include=*.ts)",
-      "Bash(node -e \"const { PrismaClient } = require\\(''@prisma/client''\\); const p = new PrismaClient\\(\\); p.clockRecord.count\\(\\).then\\(c => { console.log\\(''clock_records count:'', c\\); return p.worker.count\\(\\); }\\).then\\(c => { console.log\\(''workers count:'', c\\); return p.shift.count\\(\\); }\\).then\\(c => { console.log\\(''shifts count:'', c\\); process.exit\\(0\\); }\\).catch\\(e => { console.error\\(e.message\\); process.exit\\(1\\); }\\);\")"
+      "Bash(node -e \"const { PrismaClient } = require\\(''@prisma/client''\\); const p = new PrismaClient\\(\\); p.clockRecord.count\\(\\).then\\(c => { console.log\\(''clock_records count:'', c\\); return p.worker.count\\(\\); }\\).then\\(c => { console.log\\(''workers count:'', c\\); return p.shift.count\\(\\); }\\).then\\(c => { console.log\\(''shifts count:'', c\\); process.exit\\(0\\); }\\).catch\\(e => { console.error\\(e.message\\); process.exit\\(1\\); }\\);\")",
+      "Bash(find '/c/Users/Hasanova/utility/global move/ez-metric/backend/prisma/migrations' -name *.sql -o -name migration.sql)"
     ]
   }
 }
