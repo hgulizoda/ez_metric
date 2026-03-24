@@ -9,8 +9,13 @@ export const departmentService = {
     return prisma.department.findUnique({ where: { id } });
   },
 
-  async create(data: { name: string }) {
-    return prisma.department.create({ data });
+  async create(data: { name: string; code?: string }) {
+    return prisma.department.create({
+      data: {
+        name: data.name,
+        code: data.code || data.name.toLowerCase().replace(/\s+/g, '-'),
+      },
+    });
   },
 
   async update(id: number, data: { name?: string }) {
