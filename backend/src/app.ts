@@ -32,21 +32,16 @@ app.use(
 
 app.use(express.json());
 
-app.use('/api', healthRouter);
-app.use('/api', authRouter);
-app.use('/api', workersRouter);
-app.use('/api', shiftsRouter);
-app.use('/api', clockRouter);
-app.use('/api', gracePeriodRulesRouter);
-app.use('/api', salaryRouter);
-app.use('/api', efficiencyRouter);
-app.use('/api', reportsRouter);
-app.use('/api', dashboardRouter);
-app.use('/api', managersRouter);
-app.use('/api', departmentsRouter);
-app.use('/api', jobsRouter);
-app.use('/api', shiftTypesRouter);
-app.use('/api', devicesRouter);
+const allRouters = [
+  healthRouter, authRouter, workersRouter, shiftsRouter,
+  clockRouter, gracePeriodRulesRouter, salaryRouter, efficiencyRouter,
+  reportsRouter, dashboardRouter, managersRouter, departmentsRouter,
+  jobsRouter, shiftTypesRouter, devicesRouter,
+];
+for (const router of allRouters) {
+  app.use('/api', router);
+  app.use('/', router);  // Vercel serverless strips /api prefix
+}
 
 app.use(errorHandler);
 

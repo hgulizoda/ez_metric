@@ -1,7 +1,7 @@
 {
   "version": 2,
   "installCommand": "npm install",
-  "buildCommand": "npx prisma generate && node node_modules/typescript/bin/tsc",
+  "buildCommand": "npx prisma generate",
   "outputDirectory": ".",
   "functions": {
     "api/index.ts": {
@@ -10,7 +10,7 @@
   },
   "rewrites": [
     {
-      "source": "/api/(.*)",
+      "source": "/api/:path*",
       "destination": "/api"
     }
   ]
