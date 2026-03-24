@@ -12,6 +12,16 @@ export async function getWorkedHours(_req: Request, res: Response): Promise<void
   sendSuccess(res, data);
 }
 
+export async function getHoursTrend(_req: Request, res: Response): Promise<void> {
+  const data = await dashboardService.hoursTrend();
+  sendSuccess(res, data);
+}
+
+export async function getClockStatus(_req: Request, res: Response): Promise<void> {
+  const data = await dashboardService.clockStatus();
+  sendSuccess(res, data);
+}
+
 export async function getBonusProgress(_req: Request, res: Response): Promise<void> {
   const data = await dashboardService.bonusProgress();
   sendSuccess(res, data);

@@ -90,7 +90,88 @@ async function main() {
     });
   }
 
-  console.log('Seed complete: 2 admins + 2 managers + 22 workers + 3 shifts + grace rules created.');
+  // Clock records — last 14 days of realistic data
+  const clockCount = await prisma.clockRecord.count();
+  if (clockCount === 0) {
+    console.log('Seeding clock records...');
+    const allWorkers = await prisma.worker.findMany({ select: { id: true } });
+    const allShifts = await prisma.shift.findMany({ select: { id: true } });
+
+    const now = new Date();
+    const records: {
+      worker_id: number;
+      shift_id: number;
+      clock_in: Date;
+      clock_out: Date | null;
+      is_manual_edit: boolean;
+      edit_note: string | null;
+      grace_period_applied: boolean;
+    }[] = [];
+
+    for (let dayOffset = 13; dayOffset >= 0; dayOffset--) {
+      const day = new Date(now);
+      day.setDate(day.getDate() - dayOffset);
+      const dayOfWeek = day.getDay(); // 0=Sun, 6=Sat
+
+      // Skip Sundays, half staff on Saturdays
+      if (dayOfWeek === 0) continue;
+      const workingWorkers =
+        dayOfWeek === 6
+          ? allWorkers.slice(0, Math.ceil(allWorkers.length / 2))
+          : allWorkers;
+
+      for (const worker of workingWorkers) {
+        // Random shift assignment (weighted toward shift 1)
+        const rand = Math.random();
+        const shift =
+          rand < 0.6 ? allShifts[0] : rand < 0.9 ? allShifts[1] : allShifts[2];
+
+        // Vary clock-in time: 6:45–7:15 for shift 1, 7:45–8:15 for shift 2, 19:45–20:15 for night
+        let baseHour: number;
+        if (shift.id === allShifts[0].id) baseHour = 7;
+        else if (shift.id === allShifts[1].id) baseHour = 8;
+        else baseHour = 20;
+
+        const clockInVariance = Math.floor(Math.random() * 31) - 15; // -15 to +15 min
+        const clockIn = new Date(
+          day.getFullYear(),
+          day.getMonth(),
+          day.getDate(),
+          baseHour,
+          clockInVariance,
+        );
+
+        // Hours worked: 7.5–10 hours with occasional short days
+        const hoursWorked = 7.5 + Math.random() * 2.5;
+        const clockOut = new Date(clockIn.getTime() + hoursWorked * 3600000);
+
+        // Today's records: some workers still clocked in (no clock_out)
+        const isToday = dayOffset === 0;
+        const stillIn = isToday && Math.random() < 0.4;
+
+        // 5% chance of grace period
+        const grace = clockInVariance > 0 && clockInVariance <= 5;
+
+        // 3% chance of manual edit
+        const isManual = Math.random() < 0.03;
+
+        records.push({
+          worker_id: worker.id,
+          shift_id: shift.id,
+          clock_in: clockIn,
+          clock_out: stillIn ? null : clockOut,
+          is_manual_edit: isManual,
+          edit_note: isManual ? 'Corrected by admin — forgot to clock in on time' : null,
+          grace_period_applied: grace,
+        });
+      }
+    }
+
+    await prisma.clockRecord.createMany({ data: records });
+    console.log(`  -> ${records.length} clock records created.`);
+  }
+
+  console.log('Seed complete.');
 }
 
 main()

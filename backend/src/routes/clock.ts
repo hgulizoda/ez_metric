@@ -6,7 +6,6 @@ import {
   clockOut,
   listRecords,
   getRecord,
-  changeStatus,
   editRecord,
 } from '../controllers/clock.controller';
 
@@ -22,8 +21,7 @@ router.post('/clock/out', authorize('admin', 'manager'), clockOut);
 router.get('/clock/records', authorize('admin', 'manager'), listRecords);
 router.get('/clock/records/:id', authorize('admin', 'manager'), getRecord);
 
-// Status change and manual edit — admin only
-router.patch('/clock/records/:id/status', authorize('admin'), changeStatus);
+// Manual edit — admin only
 router.put('/clock/records/:id', authorize('admin'), editRecord);
 
 export default router;
