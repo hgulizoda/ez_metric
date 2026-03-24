@@ -1,19 +1,17 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.ts",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["prisma/**", "src/**"]
-      }
+  "installCommand": "npm install",
+  "buildCommand": "npx prisma generate && node node_modules/typescript/bin/tsc",
+  "outputDirectory": ".",
+  "functions": {
+    "api/index.ts": {
+      "includeFiles": "prisma/**"
     }
-  ],
-  "routes": [
+  },
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/index.ts"
+      "source": "/api/(.*)",
+      "destination": "/api"
     }
-  ],
-  "installCommand": "npm install && npx prisma generate --schema=prisma/schema.prisma"
+  ]
 }
